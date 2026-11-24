@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farewell Management System · SMK Walisongo Jakarta</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--navy:#0f1f3d;--navy2:#1a2f57;--gold:#c9a24b;--bg:#f5f6f9;--tx:#1b2333;--mu:#6a7488;--bd:#e1e5ee;--ok:#1f9d57;--wa:#e0a800;--er:#d64545;--gr:#9aa3b5}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 "Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+button,input,select,textarea{font:inherit}
+.app{display:flex;min-height:100vh}
+aside{width:224px;background:var(--navy);color:#fff;padding:16px 10px;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+aside h1{font:700 16px Georgia,serif;color:var(--gold);margin:0 8px 12px;line-height:1.3}
+aside a{display:block;padding:8px 12px;border-radius:8px;color:#cfd6e6;cursor:pointer;margin-bottom:1px;font-size:14px}
+aside a.on,aside a:hover{background:var(--navy2);color:#fff}
+aside .sm{font-size:12px;color:#8e9ab5;margin:12px 8px 4px}
+aside select{background:var(--navy2);color:#fff;border-color:#34497a;margin:0 0 6px;padding:6px}
+main{flex:1;padding:22px;min-width:0}
+.top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.top h2{margin:0;font:700 22px Georgia,serif;color:var(--navy);flex:1}
+.card{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.stat b{display:block;font:700 28px Georgia,serif;color:var(--navy)}.stat span{color:var(--mu);font-size:13px}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;display:inline-block}
+.btn.g{background:var(--gold);color:var(--navy);font-weight:600}.btn.o{background:#fff;color:var(--navy);border:1px solid var(--bd)}
+.btn.r{background:var(--er)}.btn.s{padding:4px 10px;font-size:13px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd);font-size:14px;vertical-align:top}
+th{color:var(--mu);font-weight:600}.tw{overflow-x:auto}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.row>*{flex:1;min-width:130px}.row>.btn{flex:0 0 auto}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--bd);margin-bottom:14px;overflow-x:auto}
+.tabs a{padding:9px 14px;cursor:pointer;color:var(--mu);white-space:nowrap}.tabs a.on{color:var(--navy);border-bottom:3px solid var(--gold);font-weight:600}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:6px}
+.badge{padding:2px 9px;border-radius:99px;font-size:12px;background:#eef1f7;color:var(--navy)}
+.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:14px;z-index:20}
+.modal>div,.modal form{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:440px;max-height:90vh;overflow:auto}
+.modal label{display:block;font-size:13px;color:var(--mu);margin:10px 0 3px}
+.sync{position:fixed;right:14px;bottom:14px;padding:8px 14px;border-radius:99px;color:#fff;font-size:13px;z-index:30;background:var(--ok)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:60px;background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;z-index:40}
+.stu{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;background:#fff}
+.stu .nm{flex:1;min-width:0}.stu .nm small{color:var(--mu);display:block}
+.stu select{width:auto}.stu.hd{border-color:var(--ok);background:#f0faf4}.stu.bd{border-color:var(--wa);background:#fffaec}
+.chk{width:34px;height:34px;flex:0 0 34px;accent-color:var(--ok)}
+.warn{background:#fff4e0;border:1px solid var(--wa);padding:10px 12px;border-radius:8px;margin-bottom:12px}
+.chip{display:inline-block;background:#eef1f7;border:1px solid var(--bd);border-radius:99px;padding:3px 10px;margin:2px;font-size:13px;cursor:grab}
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.room{border:2px dashed var(--bd);border-radius:10px;padding:10px;min-height:110px;background:#fff}.room.bad{border-color:var(--er)}
+.big{font:700 26px Georgia,serif}
+.pg{background:#fff;border:1px solid var(--bd);padding:28px;margin-bottom:16px;min-height:300px}
+.pg h3{font-family:Georgia,serif;color:var(--navy);border-bottom:2px solid var(--gold);padding-bottom:6px}
+.pg .ft{margin-top:20px;font-size:11px;color:var(--mu);border-top:1px solid var(--bd);padding-top:6px;display:flex;justify-content:space-between}
+aside summary{padding:8px 12px;color:#8e9ab5;font-size:13px;cursor:pointer;list-style:none;border-radius:8px;display:flex;justify-content:space-between}
+aside summary::-webkit-details-marker{display:none}aside summary::after{content:"\25B8";transition:transform .15s}
+aside details[open]>summary{color:#fff}aside details[open]>summary::after{transform:rotate(90deg)}aside details a{padding-left:24px}
+.xl .stu{padding:16px}.xl .chk{width:46px;height:46px;flex:0 0 46px}.xl .stu b{font-size:17px}.xl .stu select{padding:12px}
+.bar{height:16px;background:#e6e9f1;border-radius:9px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%}
+#cardov{position:fixed;inset:0;background:#fff;z-index:50;overflow:auto;padding:16px}.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.qc{border:1px dashed #999;padding:10px;text-align:center;break-inside:avoid;font-size:12px}.qc .qr{display:flex;justify-content:center;margin:6px 0}
+.mbar,.ov{display:none}
+@media(max-width:800px){.mbar{display:flex;position:sticky;top:0;z-index:15;background:var(--navy);align-items:center;gap:12px;padding:10px 14px}.mbar b{font:700 16px Georgia,serif;color:var(--gold);flex:1}
+.mbar button{background:none;border:1px solid #34497a;color:#fff;border-radius:8px;font-size:20px;line-height:1;padding:6px 12px}
+.app{display:block}aside{position:fixed;left:0;top:0;bottom:0;width:80%;max-width:300px;z-index:25;transform:translateX(-100%);transition:transform .2s;box-shadow:0 0 30px #0008}
+body.mo aside{transform:none}body.mo .ov{display:block;position:fixed;inset:0;background:#0007;z-index:24}
+aside a,aside summary{padding:13px 14px;font-size:15px}aside details a{padding-left:28px}main{padding:14px}.sync{bottom:10px;right:10px;font-size:12px}}
+@media print{body.cp>*:not(#cardov){display:none!important}body.cp #cardov{position:static;padding:0}.mbar,.ov,aside,.top,.noprint,.sync,.toast{display:none!important}body{background:#fff}main{padding:0}
+ body.bk main>*:not(.bkwrap){display:none}.pg{border:0;page-break-after:always;margin:0}.card{border:0;padding:0}}
+
+.land{min-height:100vh;background:var(--navy) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23c9a24b' stroke-opacity='.16'%3E%3Crect x='16' y='16' width='32' height='32'/%3E%3Crect x='16' y='16' width='32' height='32' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E");padding:40px 18px;color:#fff}
+.land-in{max-width:1000px;margin:auto}
+.hero{display:flex;gap:22px;align-items:center;margin-bottom:30px}
+.hero h1{font:700 clamp(30px,6vw,52px)/1.08 Georgia,serif;color:var(--gold);margin:0 0 10px;letter-spacing:.5px}
+.hero p{margin:0 0 16px;color:#cdd6ea;max-width:560px;font-size:16px}
+.panel{background:#fff;color:var(--tx);border-radius:14px;padding:22px;box-shadow:0 18px 50px #0006}
+.panel h3{margin:0 0 14px;font:700 19px Georgia,serif;color:var(--navy)}
+.choose{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.pick{border:1px solid var(--bd);border-left:5px solid var(--gold);border-radius:10px;padding:16px;cursor:pointer;background:#fbfbfd}
+.pick:hover{background:#fff8e8}.pick b{font:700 17px Georgia,serif;color:var(--navy)}.pick p{margin:4px 0 0;color:var(--mu);font-size:14px}
+.land .foot{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;color:#9fb0d0;font-size:13px;align-items:center}
+.land .foot .btn{background:#ffffff1a;color:#fff;font-size:13px;padding:6px 12px}
+@media(max-width:640px){.hero{flex-direction:column;align-items:flex-start}}
+aside .brand{display:flex;gap:10px;align-items:center;margin:0 6px 14px}aside .brand h1{margin:0;font-size:14px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="sync" class="sync">Mode lokal (data tersimpan di browser ini)</div>
+<script>
+/* ===== Penyimpanan lokal (nanti diganti Firebase) ===== */
+const GLOBAL=new Set(['events','students','teachers']);
+let DB;try{DB=JSON.parse(localStorage.getItem('fms')||'{}')}catch(e){DB={}}
+const save=()=>{try{localStorage.setItem('fms',JSON.stringify(DB))}catch(e){toast('Penyimpanan browser penuh')}};
+const T=n=>DB[n]||(DB[n]=[]);
+const S={tid:'',dashBus:null,og:{},ev:DB._ev||null,view:'dash',busId:null,tab:'info',cpId:null,phase:'arrive',q:'',kelas:'',jk:'',role:'admin'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),2400)};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const list=n=>GLOBAL.has(n)?T(n):T(n).filter(r=>r.ev===S.ev);
+const get=(n,id)=>T(n).find(r=>r.id===id);
+function put(n,o){if(!o.id)o.id=uid();if(!GLOBAL.has(n))o.ev=S.ev;const a=T(n),i=a.findIndex(r=>r.id===o.id);i<0?a.push(o):a[i]={...a[i],...o};save();render()}
+function del(n,id){DB[n]=T(n).filter(r=>r.id!==id);save();render()}
+const EV=()=>get('events',S.ev);
+const tok=()=>[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
+const now=()=>new Date().toLocaleString('id-ID');
+const opt=(n,k='nama')=>()=>list(n).map(r=>({v:r.id,t:r[k]}));
+const nama=id=>get('students',id)?.nama||id;
+const stu=id=>get('students',id)||{};
+
+/* ===== Definisi modul CRUD generik: [kunci,label,tipe,opsi] ===== */
+const M={
+students:{t:'Data siswa',f:[['nis','NIS'],['nama','Nama lengkap'],['jk','JK','sel',['L','P']],['kelas','Kelas'],['hp','Nomor HP'],['ortu','Nama orang tua'],['hpOrtu','HP orang tua'],['darurat','Kontak darurat']]},
+teachers:{t:'Data guru',f:[['nama','Nama lengkap'],['nip','NIP'],['jabatan','Jabatan'],['hp','Nomor HP'],['pend','Guru pendamping','sel',['Ya','Tidak']]]},
+cps:{t:'Checkpoint perjalanan',sort:'order',f:[['nama','Nama lokasi'],['order','Urutan','num'],['tanggal','Tanggal','date'],['tiba','Jadwal tiba','time'],['berangkat','Jadwal berangkat','time'],['pj','Penanggung jawab'],['ket','Keterangan']]},
+hotels:{t:'Hotel',f:[['nama','Nama hotel'],['alamat','Alamat'],['hp','Kontak hotel']]},
+notes:{t:'Catatan khusus siswa (rahasia)',f:[['sid','Siswa','ref',()=>T('students').map(s=>({v:s.id,t:s.nama}))],['alergi','Riwayat alergi'],['kondisi','Penyakit / kondisi'],['obat','Obat yang dibawa'],['khusus','Kebutuhan khusus'],['ortuCat','Catatan orang tua','area']]},
+rundownT:{t:'Rundown perjalanan',sort:'tgl',col:'rundown',f:[['tgl','Tanggal','date'],['mulai','Mulai','time'],['selesai','Selesai','time'],['kegiatan','Kegiatan'],['lokasi','Lokasi'],['pj','Penanggung jawab'],['cat','Catatan']],def:{jenis:'trip'}},
+rundownP:{t:'Rundown acara',sort:'mulai',col:'rundown',f:[['mulai','Mulai','time'],['selesai','Selesai','time'],['kegiatan','Nama sesi'],['pj','Penanggung jawab'],['petugas','Petugas'],['alat','Kebutuhan sound/multimedia/perlengkapan'],['cat','Catatan']],def:{jenis:'party'}},
+venues:{t:'Gedung',f:[['nama','Nama gedung'],['alamat','Alamat'],['kap','Kapasitas','num'],['kontak','Kontak pengelola'],['harga','Harga sewa','num'],['fas','Fasilitas'],['meja','Jumlah meja','num'],['layout','Layout / pembagian meja','area']]},
+committee:{t:'Panitia',f:[['nama','Nama'],['divisi','Divisi','sel',['Ketua','Sekretaris','Bendahara','Acara','Perlengkapan','Konsumsi','Transportasi','Dokumentasi','Keamanan','Kesehatan','Registrasi']],['tugas','Tugas'],['status','Status pekerjaan','sel',['Belum','Proses','Selesai']]]},
+budgets:{t:'Anggaran',f:[['kategori','Kategori biaya'],['jumlah','Anggaran (Rp)','num']]},
+tx:{t:'Transaksi',sort:'tgl',f:[['tgl','Tanggal','date'],['tipe','Jenis','sel',['Pengeluaran','Pemasukan']],['kategori','Kategori'],['ket','Keterangan'],['jumlah','Jumlah (Rp)','num'],['vendor','Vendor','ref',()=>[{v:'',t:'-'},...list('vendors').map(v=>({v:v.id,t:v.nama}))]],['bayar','Status pembayaran','sel',['Lunas','DP','Belum']],['bukti','Link bukti']]},
+vendors:{t:'Vendor',f:[['nama','Nama vendor'],['jenis','Jenis','sel',['Bus','Hotel','Gedung','Katering','Dokumentasi','Entertainment','Lainnya']],['kontak','Kontak'],['ket','Catatan']]},
+docs:{t:'Dokumen',f:[['nama','Nama dokumen'],['jenis','Jenis','sel',['Surat undangan','Surat izin orang tua','Surat tugas guru','Surat sewa gedung','Kontrak vendor','Rundown','Laporan acara']],['tgl','Tanggal','date'],['link','Link file (Drive dll.)'],['ket','Catatan']]},
+ann:{t:'Pengumuman',f:[['judul','Judul'],['target','Untuk','sel',['Peserta','Panitia','Semua']],['isi','Isi pesan','area']]},
+catitems:{t:'Jenis konsumsi',f:[['nama','Nama (Snack/Box makanan/Minuman)'],['per','Jatah per orang','num'],['butuh','Total kebutuhan','num']]},
+equip:{t:'Perlengkapan',bus:1,f:[['nama','Nama barang'],['perlu','Jumlah kebutuhan','num'],['ada','Jumlah tersedia','num'],['fase','Checklist','sel',['Sebelum berangkat','Setelah perjalanan']],['cek','Status cek','sel',['Belum','Sudah']],['kondisi','Kondisi','sel',['Baik','Rusak','Kurang']],['cat','Catatan']]},
+cons:{t:'Konsumsi bus',bus:1,f:[['jenis','Jenis','sel',['Snack','Makanan','Minuman']],['jumlah','Jumlah','num'],['dibagi','Sudah dibagikan','num'],['jadwal','Jadwal distribusi','time'],['status','Status','sel',['Belum','Proses','Selesai']],['cat','Catatan kekurangan']]}
+};
+const modName=n=>M[n].col||n;
+const pre={inv:o=>{o.token??=tok();o.hadir??=0;o.sent??=false;o.no??='INV-'+String(T('inv').filter(r=>r.ev===S.ev).length+1).padStart(3,'0')}};
+M.inv={t:'Undangan',f:[['nama','Nama penerima'],['kat','Kategori','sel',['Siswa','Orang tua/wali','Guru','Tamu']],['kelas','Kelas (jika siswa)'],['hp','Nomor HP (untuk WhatsApp)'],['kuota','Kuota kehadiran','num'],['rsvp','RSVP','sel',['Belum','Ya','Tidak']]]};
+
+/* ===== Form modal ===== */
+function form(title,fields,vals,onSave){
+ const m=document.createElement('div');m.className='modal';
+ m.innerHTML=`<form><h3 style="margin:0;color:var(--navy)">${esc(title)}</h3>${fields.map((f,i)=>{const[k,l,t,o]=f,v=vals[k]??'';return `<label>${esc(l)}</label>`+(
+ t==='sel'||t==='ref'?`<select name="${k}">${(t==='ref'?o():o).map(x=>{const val=x.v??x,tx=x.t??x;return `<option value="${esc(val)}" ${val==v?'selected':''}>${esc(tx)}</option>`}).join('')}</select>`
+ :t==='area'?`<textarea name="${k}" rows="3">${esc(v)}</textarea>`
+ :`<input name="${k}" type="${t==='num'?'number':t||'text'}" value="${esc(v)}" ${i===0?'required':''}>`)}).join('')}
+ <div class="row" style="margin-top:16px"><button class="btn g" type="submit">Simpan</button><button class="btn o" type="button" id="cx">Batal</button></div></form>`;
+ document.body.append(m);m.querySelector('#cx').onclick=()=>m.remove();
+ m.querySelector('form').onsubmit=e=>{e.preventDefault();const v=Object.fromEntries(new FormData(e.target));
+  fields.forEach(f=>{if(f[2]==='num')v[f[0]]=+v[f[0]]||0});
+  if(onSave(v)!==false){m.remove();toast('Tersimpan')}};
+}
+const modal=h=>{const m=document.createElement('div');m.className='modal';m.innerHTML=`<div>${h}<div class="row" style="margin-top:14px"><button class="btn o" onclick="this.closest('.modal').remove()">Tutup</button></div></div>`;document.body.append(m);return m};
+
+/* ===== Aksi ===== */
+const A=window.A={};
+A.tid=v=>{S.tid=v;S.dashBus=null;render()};
+A.dashOpen=b=>{S.dashBus=b;render()};
+A.act=()=>{const e=EV();e.act={cpId:$('#acp').value,phase:$('#aph').value};save();render();toast('Absensi dibuka untuk guru')};
+A.actOff=()=>{EV().act=null;save();render()};
+A.menu=()=>document.body.classList.toggle('mo');
+A.nav=(v,b)=>{document.body.classList.remove('mo');S.view=v;S.busId=b||null;S.tab='info';S.cpId=null;S.q='';render()};
+A.f=(k,v)=>{S[k]=v;render()};
+A.q=v=>{S.q=v;render();const i=$('#q');if(i){i.focus();i.setSelectionRange(v.length,v.length)}};
+A.tab=t=>{S.tab=t;render()};
+A.role=r=>{S.role=r;S.dashBus=null;if(r==='guru')S.tid=S.tid||list('team')[0]?.tid||'';S.view=ROLES[r][0];render()};
+A.pick=id=>{S.ev=id;DB._ev=id;save();S.view='dash';render()};
+A.switch=()=>{S.ev=null;render()};
+A.edit=(n,id,bus)=>{
+ const mm=M[n],name=modName(n),r=id?get(name,id):{};
+ form((id?'Edit ':'Tambah ')+mm.t,mm.f,r,v=>{
+  if(n==='students'){if(!id&&get('students',v.nis))return toast('NIS sudah ada (data ganda)'),false;v.id=id||v.nis}else if(id)v.id=id;
+  Object.assign(v,mm.def||{});if(bus)v.busId=bus;if(pre[n])pre[n](Object.assign(v,r,v));
+  put(name,v)})};
+A.del=(n,id)=>{if(confirm('Hapus data ini?'))del(modName(n),id)};
+A.event=t=>form('Acara baru',[['name','Nama acara'],['school','Nama sekolah'],['year','Tahun ajaran'],['date','Tanggal acara','date'],['location','Lokasi'],['chair','Nama ketua panitia'],['type','Jenis acara','sel',[{v:'trip',t:'Farewell Trip (luar kota)'},{v:'party',t:'Farewell Party (dalam kota)'}]],['desc','Deskripsi','area']],{year:'2025/2026',school:SCH,type:t||'trip'},v=>{v.id=uid();T('events').push(v);S.ev=v.id;DB._ev=v.id;save();S.view='dash';render()});
+A.delEvent=()=>{if(confirm('Hapus acara ini beserta datanya?')){Object.keys(DB).forEach(k=>{if(Array.isArray(DB[k])&&!GLOBAL.has(k))DB[k]=DB[k].filter(r=>r.ev!==S.ev)});DB.events=T('events').filter(e=>e.id!==S.ev);S.ev=null;DB._ev=null;save();render()}};
+A.xls=(rows,name)=>{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Data');XLSX.writeFile(wb,name+'.xlsx')};
+A.importX=async inp=>{const f=inp.files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer()),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+ const g=(r,...k)=>{for(const x of k)for(const c in r)if(c.toLowerCase().replace(/\s/g,'')===x)return String(r[c]).trim();return''};let n=0,d=0;
+ rows.forEach(r=>{const nis=g(r,'nis');if(!nis)return;if(get('students',nis)){d++;return}T('students').push({id:nis,nis,nama:g(r,'nama','namalengkap'),jk:g(r,'jk','jeniskelamin').charAt(0).toUpperCase(),kelas:g(r,'kelas'),hp:g(r,'hp','nomorhp'),ortu:g(r,'ortu','namaorangtua'),hpOrtu:g(r,'hportu','hporangtua')});n++});
+ save();render();toast(`${n} siswa diimpor, ${d} data ganda dilewati`)};
+A.backup=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(DB)],{type:'application/json'}));a.download='fms-cadangan.json';a.click()};
+A.restore=async inp=>{const f=inp.files[0];if(f){DB=JSON.parse(await f.text());save();S.ev=DB._ev||null;render();toast('Cadangan dipulihkan')}};
+A.reset=()=>{if(confirm('Hapus SEMUA data lokal?')){DB={};save();S.ev=null;render()}};
+A.print=()=>print();
+
+/* --- Bus --- */
+const manifestOf=b=>list('manifest').filter(m=>m.busId===b).sort((a,c)=>a.seat-c.seat);
+A.bus=id=>{const b=id&&get('buses',id);form(b?'Edit bus':'Tambah bus',[['nama','Nama / nomor bus'],['perusahaan','Perusahaan bus'],['kap','Kapasitas','num'],['plat','Nomor kendaraan'],['sopir','Nama sopir'],['hpSopir','HP sopir']],b||{kap:40},v=>{if(b)v.id=id;v.status=b?.status||'belum';put('buses',v)})};
+A.delBus=id=>{if(confirm('Hapus bus?')){del('buses',id);A.nav('buses')}};
+A.addStu=(busId,sid)=>{if(!sid)return;if(list('manifest').some(m=>m.sid===sid&&m.busId!==busId))return toast('Siswa sudah ada di bus lain. Gunakan Pindah.');
+ const b=get('buses',busId),ms=manifestOf(busId);if(ms.length>=b.kap&&!confirm(`Kapasitas ${b.kap} terlampaui. Tetap tambahkan?`))return;
+ put('manifest',{id:sid,sid,busId,seat:Math.max(0,...ms.map(m=>m.seat))+1})};
+A.addKelas=busId=>{const k=$('#kp').value;if(!k)return;const free=T('students').filter(s=>s.kelas===k&&!list('manifest').some(m=>m.sid===s.id));free.forEach(s=>A.addStu(busId,s.id));toast(free.length+' siswa kelas '+k+' ditambahkan')};
+A.move=sid=>{const m=list('manifest').find(x=>x.sid===sid);form('Pindahkan siswa',[['busId','Bus tujuan','sel',list('buses').map(b=>({v:b.id,t:b.nama}))],['seat','Nomor kursi','num']],m,v=>{put('manifest',{...m,busId:v.busId,seat:v.seat});log('manifest.pindah',{sid,ke:v.busId})})};
+A.rm=sid=>{del('manifest',list('manifest').find(x=>x.sid===sid).id);log('manifest.keluarkan',{sid})};
+const DUTY={pj:'Penanggung Jawab Bus',absensi:'Koordinator Absensi',perlengkapan:'Koordinator Perlengkapan',konsumsi:'Koordinator Konsumsi',pendamping:'Guru Pendamping'};
+A.team=busId=>form('Tambah guru ke bus',[['tid','Guru','ref',()=>T('teachers').map(t=>({v:t.id,t:t.nama}))],...Object.entries(DUTY).map(([k,l])=>['d_'+k,l,'sel',[{v:'',t:'Tidak'},{v:'1',t:'Ya'}]])],{},v=>{put('team',{id:busId+'_'+v.tid,busId,tid:v.tid,duties:Object.keys(DUTY).filter(k=>v['d_'+k])})});
+const coord=b=>list('team').filter(t=>t.busId===b&&t.duties.includes('pj')).map(t=>get('teachers',t.tid)?.nama).filter(Boolean).join(', ')||'-';
+function log(a,d){put('audit',{id:uid(),a,d:JSON.stringify(d),at:now()});}
+
+/* --- Absensi (riwayat append-only, ID catatan deterministik) --- */
+const VER=['hadir','izin','sakit','guru'];
+const rid=(b,c,p,n)=>`${b}_${c}_${p}_${n}`;
+const rec=(b,c,p,n)=>list('recs').find(r=>r.id===rid(b,c,p,n));
+function mark(sid,st,note){const o={id:rid(S.busId,S.cpId,S.phase,sid),busId:S.busId,cpId:S.cpId,phase:S.phase,sid,status:st,note:note??rec(S.busId,S.cpId,S.phase,sid)?.note??'',at:now(),by:ROLES[S.role][1]};
+ T('recs');const a=T('recs'),i=a.findIndex(r=>r.id===o.id);o.ev=S.ev;i<0?a.push(o):a[i]=o;T('hist').push({...o,id:uid()});save();render()}
+A.mark=mark;A.note=sid=>{const r=rec(S.busId,S.cpId,S.phase,sid);form('Catatan',[['note','Catatan tambahan']],r||{},v=>mark(sid,r?.status||'hadir',v.note))};
+A.allOk=()=>{manifestOf(S.busId).filter(m=>!rec(S.busId,S.cpId,S.phase,m.sid)).forEach(m=>{const o={id:rid(S.busId,S.cpId,S.phase,m.sid),busId:S.busId,cpId:S.cpId,phase:S.phase,sid:m.sid,status:'hadir',note:'',at:now(),by:ROLES[S.role][1],ev:S.ev};T('recs').push(o);T('hist').push({...o,id:uid()})});save();render()};
+function stats(b,c,p){const ms=manifestOf(b),rs=ms.map(m=>rec(b,c,p,m.sid)).filter(Boolean);return{total:ms.length,done:rs.filter(r=>VER.includes(r.status)).length,ij:rs.filter(r=>r.status==='izin'||r.status==='sakit').length}}
+A.ready=()=>{const st=stats(S.busId,S.cpId,S.phase),miss=manifestOf(S.busId).filter(m=>!rec(S.busId,S.cpId,S.phase,m.sid)).map(m=>nama(m.sid));
+ let msg=`Total ${st.total} · sudah dicek ${st.done} · belum ${st.total-st.done} · izin/sakit ${st.ij}`,why='';
+ if(st.done<st.total){why=prompt(msg+'\nBelum dicek: '+miss.join(', ')+'\n\nBus belum boleh berangkat. Isi alasan override (petugas berwenang), atau batalkan:');if(!why)return}
+ else if(!confirm(msg+'\nSemua terverifikasi. Tandai SIAP BERANGKAT?'))return;
+ put('buses',{id:S.busId,status:'siap'});log('bus.siap',{bus:S.busId,override:why});toast('Status: SIAP BERANGKAT')};
+A.unready=()=>put('buses',{id:S.busId,status:'belum'});
+A.expHist=b=>A.xls(list('hist').filter(h=>!b||h.busId===b).map(h=>({Bus:get('buses',h.busId)?.nama,Checkpoint:get('cps',h.cpId)?.nama,Fase:h.phase,NIS:h.sid,Nama:nama(h.sid),Status:h.status,Catatan:h.note,Waktu:h.at,Petugas:h.by})),'riwayat-absensi');
+function light(b){const cps=[...list('cps')].sort((x,y)=>x.order-y.order),act=[...cps].reverse().find(c=>list('recs').some(r=>r.busId===b.id&&r.cpId===c.id));
+ if(!act)return{c:'var(--gr)',t:'Checkpoint belum dimulai',cp:'-',st:{total:manifestOf(b.id).length,done:0,ij:0}};
+ const dep=list('recs').some(r=>r.busId===b.id&&r.cpId===act.id&&r.phase==='depart'),st=stats(b.id,act.id,dep?'depart':'arrive'),full=st.total>0&&st.done===st.total;
+ return{c:full?'var(--ok)':dep?'var(--er)':'var(--wa)',t:full?'Seluruh siswa terverifikasi':dep?'Ada siswa belum terverifikasi':'Proses absensi',cp:act.nama+(dep?' (berangkat)':' (tiba)'),st}}
+
+/* --- Kamar (drag & drop) --- */
+A.room=id=>{const r=id&&get('rooms',id);form(r?'Edit kamar':'Tambah kamar',[['hotelId','Hotel','ref',()=>list('hotels').map(h=>({v:h.id,t:h.nama}))],['no','Nomor kamar'],['tipe','Tipe kamar'],['kap','Kapasitas','num'],['harga','Harga (Rp)','num']],r||{kap:4},v=>{if(r)v.id=id;put('rooms',v)})};
+A.drag=(e,k)=>e.dataTransfer.setData('text',k);
+A.drop=(e,roomId)=>{e.preventDefault();A.assign(e.dataTransfer.getData('text'),roomId)};
+A.assign=(key,roomId)=>{
+ if(roomId==='pool'){del('roomasg',key);return}
+ const room=get('rooms',roomId),mem=list('roomasg').filter(a=>a.roomId===roomId&&a.id!==key).map(a=>a.id);
+ if(mem.length>=room.kap&&!confirm(`Kamar ${room.no} penuh (${room.kap}). Tetap pindahkan?`))return;
+ const jks=new Set([...mem,key].filter(k=>k[0]==='S').map(k=>stu(k.slice(2)).jk));
+ if(jks.size>1&&!confirm('Peringatan: kamar ini berisi siswa laki-laki dan perempuan. Tetap lanjutkan?'))return;
+ put('roomasg',{id:key,roomId});log('kamar.pindah',{key,roomId})};
+A.moveSel=key=>form('Pindahkan ke kamar',[['r','Kamar','sel',[{v:'pool',t:'(Belum ditempatkan)'},...list('rooms').map(r=>({v:r.id,t:r.no+' - '+get('hotels',r.hotelId)?.nama}))]]],{},v=>A.assign(key,v.r));
+
+/* --- Party --- */
+const tkn=s=>s.replace(/^FMS:/,'').trim();
+A.qr=id=>{const i=get('inv',id),m=modal(`<h3 style="margin:0">${esc(i.nama)}</h3><p>${esc(i.no)} · ${esc(i.kat)} · kuota ${i.kuota}</p><div id="qrbox" style="display:flex;justify-content:center"></div><p style="font-size:12px;color:var(--mu)">QR hanya berisi token acak, tanpa data pribadi.</p><button class="btn g" onclick="A.wa('${id}')">Kirim WhatsApp</button> <a class="btn o" id="dl" download="${esc(i.no)}.png">Unduh QR</a>`);new QRCode(m.querySelector('#qrbox'),{text:'FMS:'+i.token,width:190,height:190});setTimeout(()=>{const c=m.querySelector('canvas');if(c)m.querySelector('#dl').href=c.toDataURL()},150)};
+const waNum=p=>{p=String(p||'').replace(/\D/g,'');return p.startsWith('0')?'62'+p.slice(1):p};
+A.wa=id=>{const i=get('inv',id),e=EV();open(`https://wa.me/${waNum(i.hp)}?text=`+encodeURIComponent(`Yth. ${i.nama},\nAnda diundang ke ${e.name} (${e.school}) pada ${e.date} di ${e.location}.\nNomor undangan: ${i.no}\nKuota kehadiran: ${i.kuota} orang\nKode undangan: FMS:${i.token}\nTunjukkan kode/QR ini saat registrasi. Mohon konfirmasi kehadiran. Terima kasih.`));put('inv',{id,sent:true})};
+A.genInv=()=>form('Buat undangan otomatis dari data siswa',[['kelas','Kelas','sel',[{v:'',t:'Semua kelas'},...kelasList().map(k=>({v:k,t:k}))]],['s','Undangan siswa','sel',['Ya','Tidak']],['sk','Kuota per siswa','num'],['o','Undangan orang tua/wali','sel',['Ya','Tidak']],['ok','Kuota per orang tua','num'],['g','Undangan semua guru','sel',['Tidak','Ya']]],{sk:1,ok:2,s:'Ya',o:'Ya',g:'Tidak'},v=>{
+ let n=0,c=list('inv').length;const have=new Set(list('inv').map(i=>i.kat+'|'+(i.sid||'')));
+ const add=o=>{c++;T('inv').push({id:uid(),ev:S.ev,hadir:0,sent:false,rsvp:'Belum',token:tok(),no:'INV-'+String(c).padStart(3,'0'),...o});n++};
+ T('students').filter(s=>!v.kelas||s.kelas===v.kelas).forEach(s=>{
+  if(v.s==='Ya'&&!have.has('Siswa|'+s.id))add({nama:s.nama,kat:'Siswa',kelas:s.kelas,kuota:v.sk,hp:s.hp,sid:s.id});
+  if(v.o==='Ya'&&!have.has('Orang tua/wali|'+s.id))add({nama:s.ortu||'Orang tua '+s.nama,kat:'Orang tua/wali',kelas:s.kelas,kuota:v.ok,hp:s.hpOrtu,sid:s.id})});
+ if(v.g==='Ya')T('teachers').forEach(t=>{if(!have.has('Guru|'+t.id))add({nama:t.nama,kat:'Guru',kelas:'',kuota:1,hp:t.hp,sid:t.id})});
+ save();render();toast(n+' undangan dibuat (yang sudah ada dilewati)')});
+A.importInv=async inp=>{const f=inp.files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer()),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+ const g=(r,...k)=>{for(const x of k)for(const c in r)if(c.toLowerCase().replace(/\s/g,'')===x)return String(r[c]).trim();return''};let n=0,c=list('inv').length;
+ rows.forEach(r=>{const nm=g(r,'nama');if(!nm)return;c++;n++;T('inv').push({id:uid(),ev:S.ev,hadir:0,sent:false,rsvp:'Belum',token:tok(),no:'INV-'+String(c).padStart(3,'0'),nama:nm,kat:g(r,'kategori')||'Tamu',kelas:g(r,'kelas'),kuota:+g(r,'kuota')||1,hp:g(r,'hp','nomorhp')})});
+ save();render();toast(n+' tamu diimpor');inp.value=''};
+A.expInv=()=>A.xls(list('inv').map(i=>({No:i.no,Nama:i.nama,Kategori:i.kat,Kelas:i.kelas,HP:i.hp,Kuota:i.kuota,RSVP:i.rsvp,Hadir:i.hadir,Terkirim:i.sent?'Ya':'Belum',Kode:'FMS:'+i.token})),'undangan');
+A.delAllInv=()=>{if(confirm('Hapus SEMUA undangan acara ini?')){DB.inv=T('inv').filter(i=>i.ev!==S.ev);save();render()}};
+A.cards=()=>{const rs=list('inv');if(!rs.length)return toast('Belum ada undangan');document.body.classList.add('cp');const ov=document.createElement('div');ov.id='cardov';
+ ov.innerHTML=`<div class="noprint row"><button class="btn g" onclick="print()">Cetak / Simpan PDF</button><button class="btn o" onclick="document.body.classList.remove('cp');this.closest('#cardov').remove()">Tutup</button></div><div class="qgrid">${rs.map(i=>`<div class="qc"><b>${esc(EV().name)}</b><div class="qr" data-t="${i.token}"></div><div><b>${esc(i.nama)}</b></div><small>${esc(i.no)} · ${esc(i.kat)}${i.kelas?' · '+esc(i.kelas):''} · kuota ${i.kuota}</small></div>`).join('')}</div>`;
+ document.body.append(ov);ov.querySelectorAll('.qr').forEach(el=>new QRCode(el,{text:'FMS:'+el.dataset.t,width:110,height:110}))};
+A.checkin=id=>{const i=get('inv',id);if(!i)return toast('Undangan tidak ditemukan');
+ if(i.hadir>=i.kuota)return alert(`PERINGATAN: undangan ${i.no} (${i.nama}) sudah digunakan penuh (${i.hadir}/${i.kuota}).\nCheck-in terakhir: ${i.last}`);
+ put('inv',{id,hadir:i.hadir+1,last:now()});put('ci',{id:uid(),inv:id,at:now(),by:ROLES[S.role][1]});toast(`${i.nama} (${i.kat}${i.kelas?' '+i.kelas:''}) berhasil check-in ${i.hadir+1}/${i.kuota}`)};
+A.byToken=v=>{const i=list('inv').find(x=>x.token===tkn(v));i?A.checkin(i.id):toast('QR tidak dikenal')};
+A.scan=cb=>{if(!('BarcodeDetector'in window))return alert('Pemindaian kamera butuh Chrome Android/desktop dan koneksi HTTPS. Gunakan pencarian manual.');
+ const m=modal('<video id="vid" style="width:100%" playsinline></video>');let on=true,st;m.querySelector('.row .btn').onclick=()=>{on=false;st&&st.getTracks().forEach(t=>t.stop());m.remove()};
+ navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(async s=>{st=s;const v=m.querySelector('#vid');v.srcObject=s;await v.play();const d=new BarcodeDetector({formats:['qr_code']});
+  const tick=async()=>{if(!on)return;try{const r=await d.detect(v);if(r.length){on=false;s.getTracks().forEach(t=>t.stop());m.remove();cb(r[0].rawValue);return}}catch(e){}setTimeout(tick,300)};tick()}).catch(()=>{alert('Kamera tidak bisa diakses');m.remove()})};
+A.give=(invId,itemId)=>{const i=get('inv',invId),it=get('catitems',itemId),n=list('catdist').filter(d=>d.inv===invId&&d.item===itemId).length;
+ if(n>=it.per*i.kuota)return alert(`PERINGATAN: ${i.nama} sudah mengambil ${it.nama} (${n}/${it.per*i.kuota}).`);
+ put('catdist',{id:uid(),inv:invId,item:itemId,at:now(),by:ROLES[S.role][1]});toast(`${it.nama} diberikan kepada ${i.nama}`)};
+A.copy=id=>{navigator.clipboard.writeText(`*${get('ann',id).judul}*\n\n${get('ann',id).isi}`);toast('Pesan WhatsApp disalin')};
+A.setEv=(k,v)=>{const e=EV();e[k]=v;save()};
+
+/* ===== Peran ===== */
+const ROLES={admin:['dash','Admin / Ketua panitia'],guru:['dash','Guru pendamping'],regis:['checkin','Petugas registrasi'],konsumsi:['catering','Petugas konsumsi']};
+const MENU=()=>{const trip=EV().type==='trip';
+ const g=[['Utama',[['dash','Dashboard']]],['Data sekolah',[['students','Siswa'],['teachers','Guru']]],
+ trip?['Perjalanan',[['buses','Bus & absensi'],['cps','Checkpoint'],['hotels','Hotel'],['rooms','Kamar'],['notes','Catatan khusus']]]:['Acara',[['inv','Undangan'],['checkin','Check-in QR'],['catering','Konsumsi'],['venues','Gedung']]],
+ [trip?'Rundown & buku':'Rundown',[...(trip?[['rundownT','Rundown perjalanan']]:[]),['rundownP','Rundown acara'],...(trip?[['booklet','Buku perjalanan']]:[])]],
+ ['Panitia & keuangan',[['committee','Panitia'],['budget','Keuangan'],['vendors','Vendor']]],
+ ['Dokumen & laporan',[['docs','Dokumen'],['ann','Pengumuman'],['report','Laporan']]]];
+ const allow={admin:null,guru:['dash','buses','students'],regis:['checkin','inv'],konsumsi:['catering','checkin']}[S.role];
+ return allow?g.map(([n,a])=>[n,a.filter(m=>allow.includes(m[0]))]).filter(x=>x[1].length):g};
+
+/* ===== Tampilan ===== */
+const tbl=(h,rows,empty='Belum ada data.')=>`<div class="tw"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.join('')||`<tr><td colspan="${h.length}" style="color:var(--mu)">${empty}</td></tr>`}</table></div>`;
+const rp=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
+function cell(f,r){const v=r[f[0]];if(f[2]==='ref')return esc(f[3]().find(x=>x.v==v)?.t??'');if(f[2]==='num'&&/harga|jumlah$|Rp/.test(f[1]+f[0])&&f[0]!=='jumlah'||f[0]==='harga')return rp(v);return esc(v)}
+function vCrud(n,rows,bus,extra=''){
+ const mm=M[n];let rs=rows||list(modName(n));if(mm.col)rs=rs.filter(r=>r.jenis===mm.def.jenis);
+ if(mm.sort)rs=[...rs].sort((a,b)=>String(a[mm.sort]).localeCompare(String(b[mm.sort]),'id',{numeric:true}));
+ const q=S.q.toLowerCase();if(q)rs=rs.filter(r=>JSON.stringify(Object.values(r)).toLowerCase().includes(q));
+ return `<div class="row noprint"><input id="q" placeholder="Cari..." value="${esc(S.q)}" oninput="A.q(this.value)"><button class="btn g" onclick="A.edit('${n}',null,${bus?`'${bus}'`:'null'})">+ Tambah</button><button class="btn o" onclick="A.print()">Cetak</button>${extra}</div>
+ <div class="card">${tbl([...mm.f.filter(f=>f[2]!=='area').map(f=>f[1]),'<span class="noprint"></span>'],rs.map(r=>`<tr>${mm.f.filter(f=>f[2]!=='area').map(f=>`<td>${cell(f,r)}</td>`).join('')}<td class="noprint" style="white-space:nowrap"><button class="btn o s" onclick="A.edit('${n}','${r.id}')">Edit</button> <button class="btn r s" onclick="A.del('${n}','${r.id}')">Hapus</button></td></tr>`))}</div>`}
+const kelasList=()=>[...new Set(T('students').map(s=>s.kelas).filter(Boolean))].sort();
+function vStudents(){
+ const dup=T('students').filter((s,i,a)=>a.findIndex(x=>x.nama.toLowerCase()===s.nama.toLowerCase()&&x.kelas===s.kelas)!==i);
+ const rs=T('students').filter(s=>(!S.kelas||s.kelas===S.kelas)&&(!S.jk||s.jk===S.jk));
+ return `${dup.length?`<div class="warn">Kemungkinan data ganda (nama dan kelas sama): ${dup.map(d=>esc(d.nama)).join(', ')}</div>`:''}
+ <div class="row noprint"><select onchange="A.f('kelas',this.value)"><option value="">Semua kelas</option>${kelasList().map(k=>`<option ${k===S.kelas?'selected':''}>${esc(k)}</option>`).join('')}</select><select onchange="A.f('jk',this.value)"><option value="">L/P</option><option ${S.jk==='L'?'selected':''}>L</option><option ${S.jk==='P'?'selected':''}>P</option></select>
+ <label class="btn o">Import Excel<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="A.importX(this)"></label><button class="btn o" onclick="A.xls(T('students').map(({id,...r})=>r),'siswa')">Export Excel</button></div>
+ <p class="noprint" style="color:var(--mu);font-size:13px">Kolom import: NIS, Nama, JK, Kelas, HP, Ortu, HP Ortu. NIS ganda dilewati.</p>${vCrud('students',rs)}`}
+function vDash(){
+ const e=EV(),H=`<div class="card"><b>${esc(e.name)}</b> <span class="badge">${e.type==='trip'?'Farewell Trip':'Farewell Party'}</span><br><span style="color:var(--mu)">${esc(e.school)} · ${esc(e.year)} · ${esc(e.date)} · ${esc(e.location)}<br>Ketua panitia: ${esc(e.chair)}</span></div>`;
+ const g=a=>`<div class="grid">${a.map(([l,v])=>`<div class="card stat"><b>${v}</b><span>${l}</span></div>`).join('')}</div>`;
+ const nxt=[...list('rundown')].filter(r=>r.jenis===(e.type==='trip'?'trip':'party')).sort((a,b)=>(a.tgl||'').localeCompare(b.tgl||'')||(a.mulai||'').localeCompare(b.mulai||'')).slice(0,4);
+ const rd=`<div class="card"><b>Rundown terdekat</b>${tbl(['Waktu','Kegiatan','PJ'],nxt.map(r=>`<tr><td>${esc(r.tgl||'')} ${esc(r.mulai)}</td><td>${esc(r.kegiatan)}</td><td>${esc(r.pj)}</td></tr>`))}</div>`;
+ if(e.type==='trip'){const buses=list('buses'),admin=S.role==='admin',act=e.act&&get('cps',e.act.cpId)?e.act:null,cp=act&&get('cps',act.cpId),ph=act?.phase==='arrive'?'kedatangan':'keberangkatan';
+  const banner=cp?`<div class="card" style="background:var(--navy);color:#fff;border-left:6px solid var(--gold)"><div style="color:var(--gold)">Absensi yang sedang dibuka</div><div class="big">${esc(cp.nama)}</div><div>Check-in ${ph}</div></div>`:`<div class="warn">Belum ada absensi yang dibuka.${admin?' Pilih lokasi di bawah, lalu aktifkan.':' Tunggu panitia mengaktifkan.'}</div>`;
+  const cps=[...list('cps')].sort((x,y)=>x.order-y.order);
+  const ctl=admin?`<div class="card noprint"><b>Pilih absensi yang tampil untuk guru</b><div class="row" style="margin-top:8px"><select id="acp">${cps.map(c=>`<option value="${c.id}" ${act?.cpId===c.id?'selected':''}>${c.order}. ${esc(c.nama)}</option>`).join('')}</select><select id="aph"><option value="arrive" ${act?.phase!=='depart'?'selected':''}>Check-in kedatangan</option><option value="depart" ${act?.phase==='depart'?'selected':''}>Check-in keberangkatan</option></select><button class="btn g" onclick="A.act()">Aktifkan</button>${act?'<button class="btn o" onclick="A.actOff()">Tutup absensi</button>':''}</div><small style="color:var(--mu)">Absensi lokasi lain disembunyikan dari guru sampai Anda mengaktifkannya.</small></div>`:'';
+  if(!admin){let mine=buses.filter(b=>!S.tid||list('team').some(t=>t.busId===b.id&&t.tid===S.tid));const cur=mine.find(b=>b.id===S.dashBus)||mine[0];
+   return banner+(mine.length>1?`<div class="row">${mine.map(b=>`<button class="btn ${b===cur?'g':'o'}" onclick="A.dashOpen('${b.id}')">${esc(b.nama)}</button>`).join('')}</div>`:'')+(cur?vAbsen(cur,true):'<div class="card">Anda belum ditugaskan ke bus mana pun.</div>')}
+  if(S.dashBus&&get('buses',S.dashBus))return banner+`<div class="row noprint"><button class="btn o" onclick="A.dashOpen(null)">Kembali ke dashboard</button></div>`+vAbsen(get('buses',S.dashBus),true);
+  const cards=`<div class="grid">${buses.map(b=>{const st=act?stats(b.id,act.cpId,act.phase):{total:manifestOf(b.id).length,done:0,ij:0},pct=st.total?Math.round(st.done/st.total*100):0;
+   return `<div class="card"><b style="font-size:17px">${esc(b.nama)}</b><br><span style="color:var(--mu)">${esc(coord(b.id))}</span><div class="big">${st.done}/${st.total}</div><div class="bar"><i style="width:${pct}%;background:${pct===100?'var(--ok)':'var(--wa)'}"></i></div><button class="btn g" style="width:100%" onclick="A.dashOpen('${b.id}')">Buka absensi</button></div>`}).join('')||'<div class="card">Belum ada bus.</div>'}</div>`;
+  return H+banner+ctl+'<h3 style="margin:6px 0 10px">Absensi tiap bus</h3>'+cards+g([['Total siswa',list('manifest').length],['Total guru',T('teachers').length],['Total bus',buses.length],['Total kamar',list('rooms').length],['Penghuni kamar',list('roomasg').length],['Siswa berkebutuhan khusus',list('notes').length]])
+  +`<div class="card"><h3 style="margin-top:0">Monitoring seluruh bus</h3>${tbl(['Bus','Koordinator','Siswa','Guru','Checkpoint','Status','Terverifikasi','Belum','Berangkat'],buses.map(b=>{const l=light(b);return `<tr style="cursor:pointer" onclick="A.nav('bus','${b.id}')"><td><b>${esc(b.nama)}</b></td><td>${esc(coord(b.id))}</td><td>${l.st.total}</td><td>${list('team').filter(t=>t.busId===b.id).length}</td><td>${esc(l.cp)}</td><td><span class="dot" style="background:${l.c}"></span>${l.t}</td><td>${l.st.done}</td><td>${l.st.total-l.st.done}</td><td>${b.status==='siap'?'<span class="badge" style="background:#d9f3e4">Siap</span>':'-'}</td></tr>`}),'Belum ada bus.')}</div>`+rd}
+ const inv=list('inv'),hadirBy=k=>inv.filter(i=>i.kat===k).reduce((s,i)=>s+i.hadir,0),tot=inv.reduce((s,i)=>s+i.kuota,0),hd=inv.reduce((s,i)=>s+i.hadir,0);
+ const given=n=>list('catdist').filter(d=>get('catitems',d.item)?.nama.toLowerCase().includes(n)).length;
+ return H+g([['Total undangan',inv.length],['Total RSVP (Ya)',inv.filter(i=>i.rsvp==='Ya').length],['Total hadir',hd],['Belum hadir',tot-hd],['Persentase hadir',(tot?Math.round(hd/tot*100):0)+'%'],['Siswa hadir',hadirBy('Siswa')],['Orang tua hadir',hadirBy('Orang tua/wali')],['Guru hadir',hadirBy('Guru')],['Snack dibagikan',given('snack')],['Box makanan dibagikan',given('box')]])+rd
+  +`<div class="card"><b>Status pekerjaan panitia</b>${tbl(['Belum','Proses','Selesai'],[`<tr>${['Belum','Proses','Selesai'].map(s=>`<td>${list('committee').filter(c=>c.status===s).length}</td>`).join('')}</tr>`])}</div>`}
+function vBuses(){return `<div class="row noprint"><button class="btn g" onclick="A.bus()">+ Bus</button></div><div class="grid">${list('buses').map(b=>{const n=manifestOf(b.id).length;return `<div class="card" style="cursor:pointer" onclick="A.nav('bus','${b.id}')"><b>${esc(b.nama)}</b><br><span style="color:var(--mu)">${esc(b.perusahaan)} · ${esc(b.plat)}</span><br>${n} / ${b.kap} penumpang ${n>b.kap?'<span class="badge" style="background:#fde3e3">Melebihi kapasitas</span>':''}${b.status==='siap'?' <span class="badge" style="background:#d9f3e4">Siap</span>':''}</div>`}).join('')||'<div class="card">Belum ada bus.</div>'}</div>`}
+function vBus(){
+ const b=get('buses',S.busId);if(!b)return vBuses();const tabs={info:'Informasi',manifest:'Manifest',tim:'Tim guru',absen:'Absensi',alat:'Perlengkapan',kons:'Konsumsi',riwayat:'Riwayat'};let body='';
+ const ms=manifestOf(b.id);
+ if(S.tab==='info')body=`<div class="card">${[['Perusahaan',b.perusahaan],['Nomor kendaraan',b.plat],['Sopir',b.sopir+' · '+(b.hpSopir||'')],['Kapasitas',b.kap],['Penumpang',ms.length],['Penanggung jawab',coord(b.id)],['Status',b.status==='siap'?'Siap berangkat':'Belum siap']].map(([k,v])=>`<p style="margin:4px 0"><span style="color:var(--mu)">${k}:</span> ${esc(v)}</p>`).join('')}<br><button class="btn o" onclick="A.bus('${b.id}')">Edit</button> <button class="btn r" onclick="A.delBus('${b.id}')">Hapus</button> ${b.status==='siap'?`<button class="btn o" onclick="A.unready()">Batalkan status siap</button>`:''}</div>`;
+ if(S.tab==='manifest'){const free=T('students').filter(s=>!list('manifest').some(m=>m.sid===s.id));
+  body=`${ms.length>b.kap?`<div class="warn">Penumpang (${ms.length}) melebihi kapasitas (${b.kap}).</div>`:''}<div class="row noprint"><select id="kp"><option value="">Pilih kelas</option>${kelasList().map(k=>`<option>${esc(k)}</option>`).join('')}</select><button class="btn" onclick="A.addKelas('${b.id}')">Tambah satu kelas</button>
+  <select id="one"><option value="">Pilih siswa manual</option>${free.map(s=>`<option value="${s.id}">${esc(s.nama)} (${esc(s.kelas)})</option>`).join('')}</select><button class="btn" onclick="A.addStu('${b.id}',$('#one').value)">Tambah</button><button class="btn o" onclick="A.print()">Cetak manifest</button></div>
+  <div class="card"><h3 style="margin-top:0">Manifest ${esc(b.nama)} · Sopir ${esc(b.sopir)} ${esc(b.hpSopir)} · Pendamping: ${esc(coord(b.id))}</h3>${tbl(['Kursi','Nama','Kelas','HP orang tua','<span class="noprint"></span>'],ms.map(m=>`<tr><td>${m.seat}</td><td>${esc(nama(m.sid))}</td><td>${esc(stu(m.sid).kelas)}</td><td>${esc(stu(m.sid).hpOrtu)}</td><td class="noprint"><button class="btn o s" onclick="A.move('${m.sid}')">Pindah</button> <button class="btn r s" onclick="A.rm('${m.sid}')">Keluarkan</button></td></tr>`),'Manifest kosong.')}</div>`}
+ if(S.tab==='tim')body=`<div class="row"><button class="btn g" onclick="A.team('${b.id}')">+ Guru ke bus ini</button></div><div class="card">${tbl(['Guru','HP','Tugas',''],list('team').filter(t=>t.busId===b.id).map(t=>{const g=get('teachers',t.tid)||{};return `<tr><td>${esc(g.nama)}</td><td>${esc(g.hp)}</td><td>${t.duties.map(d=>`<span class="badge">${DUTY[d]}</span>`).join(' ')}</td><td><button class="btn r s" onclick="del('team','${t.id}')">Hapus</button></td></tr>`}),'Belum ada guru.')}</div>`;
+ if(S.tab==='absen')body=vAbsen(b);
+ if(S.tab==='alat')body=vCrud('equip',list('equip').filter(r=>r.busId===b.id),b.id);
+ if(S.tab==='kons'){const r=list('cons').filter(x=>x.busId===b.id);body=vCrud('cons',r,b.id,`<span class="badge" style="align-self:center">Sisa total: ${r.reduce((s,x)=>s+x.jumlah-x.dibagi,0)}</span>`)}
+ if(S.tab==='riwayat')body=`<div class="row"><button class="btn g" onclick="A.expHist('${b.id}')">Export riwayat (Excel)</button><button class="btn o" onclick="A.print()">Cetak / PDF</button></div><div class="card">${tbl(['Waktu','Checkpoint','Fase','Siswa','Status','Catatan','Petugas'],list('hist').filter(h=>h.busId===b.id).reverse().map(h=>`<tr><td>${esc(h.at)}</td><td>${esc(get('cps',h.cpId)?.nama)}</td><td>${h.phase==='arrive'?'Kedatangan':'Keberangkatan'}</td><td>${esc(nama(h.sid))}</td><td>${esc(h.status)}</td><td>${esc(h.note)}</td><td>${esc(h.by)}</td></tr>`),'Belum ada riwayat absensi.')}</div>`;
+ return `<div class="top"><h2>${esc(b.nama)}</h2><button class="btn o" onclick="A.nav('buses')">Kembali</button></div><div class="tabs">${Object.entries(tabs).map(([k,v])=>`<a class="${S.tab===k?'on':''}" onclick="A.tab('${k}')">${v}</a>`).join('')}</div>${body}`}
+function vAbsen(b,force){
+ const e=EV(),act=e.act&&get('cps',e.act.cpId)?e.act:null,lock=S.role!=='admin',cps=[...list('cps')].sort((x,y)=>x.order-y.order),fixed=(lock||force)&&act;
+ if(lock&&!act)return '<div class="warn">Absensi belum dibuka oleh panitia. Tunggu sampai lokasi absensi diaktifkan.</div>';
+ if(!cps.length)return '<div class="card">Belum ada checkpoint. Buka menu Checkpoint.</div>';
+ if(fixed){S.cpId=act.cpId;S.phase=act.phase}else if(!S.cpId)S.cpId=(cps.find(c=>!list('recs').some(r=>r.busId===b.id&&r.cpId===c.id&&r.phase==='depart'))||cps[0]).id;
+ S.busId=b.id;
+ const cp=get('cps',S.cpId),q=S.q.toLowerCase(),ms=manifestOf(b.id).filter(m=>(!q||nama(m.sid).toLowerCase().includes(q))&&(!S.kelas||stu(m.sid).kelas===S.kelas)),st=stats(b.id,S.cpId,S.phase),pct=st.total?Math.round(st.done/st.total*100):0;
+ const sel=fixed?'':`<div class="row"><select onchange="A.f('cpId',this.value)">${cps.map(c=>`<option value="${c.id}" ${c.id===S.cpId?'selected':''}>${c.order}. ${esc(c.nama)}</option>`).join('')}</select><select onchange="A.f('phase',this.value)"><option value="arrive" ${S.phase==='arrive'?'selected':''}>Check-in kedatangan</option><option value="depart" ${S.phase==='depart'?'selected':''}>Check-in keberangkatan</option></select></div>`;
+ return `<div class="xl">${sel}<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-size:19px">${esc(b.nama)}</b> · ${esc(cp.nama)}<br><span class="badge">${S.phase==='arrive'?'Check-in kedatangan':'Check-in keberangkatan'}</span></div><div class="big">${st.done}/${st.total}</div></div>
+ <div class="bar"><i style="width:${pct}%;background:${pct===100?'var(--ok)':'var(--wa)'}"></i></div><small style="color:var(--mu)">${st.total-st.done} belum dicek · ${st.ij} izin/sakit</small>
+ <div class="row" style="margin:10px 0 0"><input id="q" placeholder="Cari nama" value="${esc(S.q)}" oninput="A.q(this.value)"><select onchange="A.f('kelas',this.value)"><option value="">Semua kelas</option>${kelasList().map(k=>`<option ${S.kelas===k?'selected':''}>${esc(k)}</option>`).join('')}</select><button class="btn g" onclick="A.allOk()">Pilih semua hadir</button>${S.phase==='depart'?`<button class="btn" onclick="A.ready()">BUS SIAP BERANGKAT</button>`:''}</div></div>
+ ${ms.map(m=>{const r=rec(b.id,S.cpId,S.phase,m.sid),s=stu(m.sid),ok=r&&VER.includes(r.status);return `<div class="stu ${ok?'hd':r?'bd':''}"><input type="checkbox" class="chk" ${r?.status==='hadir'?'checked':''} onchange="A.mark('${m.sid}',this.checked?'hadir':'belum')"><div class="nm"><b>${esc(s.nama)}</b><small>${esc(s.kelas)} · kursi ${m.seat}${r?.note?' · '+esc(r.note):''}</small></div>
+ <select onchange="A.mark('${m.sid}',this.value)">${[['belum','Belum'],['hadir','Hadir'],['izin','Izin'],['sakit','Sakit'],['guru','Bersama guru']].map(([v,l])=>`<option value="${v}" ${(r?.status||'belum')===v?'selected':''}>${l}</option>`).join('')}</select><button class="btn o s" onclick="A.note('${m.sid}')">Catatan</button></div>`}).join('')||'<div class="card">Manifest bus kosong.</div>'}</div>`}
+function vRooms(){
+ const rooms=list('rooms'),asg=list('roomasg'),people=[...T('students').map(s=>({k:'S:'+s.id,n:s.nama,j:s.jk})),...T('teachers').filter(t=>t.pend==='Ya').map(t=>({k:'T:'+t.id,n:t.nama+' (guru)',j:'G'}))];
+ const chip=p=>`<span class="chip" draggable="true" ondragstart="A.drag(event,'${p.k}')" onclick="A.moveSel('${p.k}')" title="Seret atau klik untuk memindahkan">${esc(p.n)} ${p.j==='G'?'':'· '+esc(p.j)}</span>`;
+ const hot=id=>get('hotels',id)?.nama||'';
+ return `<div class="row noprint"><button class="btn g" onclick="A.room()">+ Kamar</button><span style="align-self:center;color:var(--mu)">Seret nama ke kamar lain (atau klik nama di HP). Peringatan muncul jika kamar penuh atau campur L/P.</span></div>
+ <div class="card" ondragover="event.preventDefault()" ondrop="A.drop(event,'pool')"><b>Belum ditempatkan</b><br>${people.filter(p=>!asg.some(a=>a.id===p.k)).map(chip).join('')||'-'}</div>
+ <div class="rooms">${rooms.map(r=>{const mem=people.filter(p=>asg.some(a=>a.id===p.k&&a.roomId===r.id)),mix=new Set(mem.filter(p=>p.j!=='G').map(p=>p.j)).size>1,bad=mem.length>r.kap||mix;
+ return `<div class="room ${bad?'bad':''}" ondragover="event.preventDefault()" ondrop="A.drop(event,'${r.id}')"><b>Kamar ${esc(r.no)}</b> <span class="badge">${mem.length}/${r.kap}</span><br><small style="color:var(--mu)">${esc(hot(r.hotelId))} · ${esc(r.tipe)} · ${rp(r.harga)}</small>${bad?`<br><small style="color:var(--er)">${mem.length>r.kap?'Kapasitas berlebih. ':''}${mix?'Campur L/P.':''}</small>`:''}<br>${mem.map(chip).join('')}<br><button class="btn o s noprint" onclick="A.room('${r.id}')">Edit</button> <button class="btn r s noprint" onclick="A.del('rooms','${r.id}')">Hapus</button></div>`}).join('')||'<div class="card">Belum ada kamar.</div>'}</div>`}
+function vInv(){
+ const q=S.q.toLowerCase(),all=list('inv'),sent=all.filter(i=>i.sent).length;
+ const rs=all.filter(i=>(!q||(i.nama+i.no).toLowerCase().includes(q))&&(!S.ikat||i.kat===S.ikat)&&(!S.kelas||i.kelas===S.kelas)&&(S.isent!=='belum'||!i.sent));
+ const opt2=(v,l,cur)=>`<option value="${v}" ${cur===v?'selected':''}>${l}</option>`;
+ return `<div class="row noprint"><button class="btn g" onclick="A.genInv()">Buat otomatis dari data siswa</button><button class="btn o" onclick="A.edit('inv')">+ Satu undangan</button><label class="btn o">Import tamu (Excel)<input type="file" accept=".xlsx,.xls,.csv" hidden onchange="A.importInv(this)"></label><button class="btn o" onclick="A.cards()">Cetak kartu QR</button><button class="btn o" onclick="A.expInv()">Export</button><button class="btn r" onclick="A.delAllInv()">Hapus semua</button></div>
+ <div class="row noprint"><input id="q" placeholder="Cari nama / nomor" value="${esc(S.q)}" oninput="A.q(this.value)"><select onchange="A.f('ikat',this.value)">${opt2('','Semua kategori',S.ikat||'')}${['Siswa','Orang tua/wali','Guru','Tamu'].map(k=>opt2(k,k,S.ikat)).join('')}</select><select onchange="A.f('kelas',this.value)">${opt2('','Semua kelas',S.kelas)}${kelasList().map(k=>opt2(k,k,S.kelas)).join('')}</select><select onchange="A.f('isent',this.value)">${opt2('','Semua status kirim',S.isent||'')}${opt2('belum','Belum dikirim',S.isent)}</select></div>
+ <div class="card"><b>${all.length} undangan</b> · terkirim ${sent} · belum ${all.length-sent} · ditampilkan ${rs.length}<br><small style="color:var(--mu)">Pengiriman cepat: filter "Belum dikirim", lalu tekan Kirim WA dari atas ke bawah. Nomor HP diambil otomatis dari data siswa/orang tua.</small>
+ ${tbl(['No','Nama','Kategori','Kelas','Kuota','RSVP','Kirim',''],rs.map(i=>`<tr><td>${esc(i.no)}</td><td>${esc(i.nama)}</td><td>${esc(i.kat)}</td><td>${esc(i.kelas)}</td><td>${i.kuota}</td><td>${esc(i.rsvp)}</td><td>${i.sent?'<span class="badge" style="background:#d9f3e4">Terkirim</span>':'<span class="badge">Belum</span>'}</td><td style="white-space:nowrap"><button class="btn g s" onclick="A.wa('${i.id}')">Kirim WA</button> <button class="btn o s" onclick="A.qr('${i.id}')">QR</button> <button class="btn o s" onclick="A.edit('inv','${i.id}')">Edit</button> <button class="btn r s" onclick="A.del('inv','${i.id}')">Hapus</button></td></tr>`),'Belum ada undangan. Klik "Buat otomatis dari data siswa".')}</div>`}
+function vCheckin(){
+ const q=S.q.toLowerCase(),rs=list('inv').filter(i=>q&&(i.nama+i.no).toLowerCase().includes(q)).slice(0,8);
+ return `<div class="card"><div class="row"><button class="btn g" onclick="A.scan(A.byToken)">Scan QR dengan kamera</button><input id="tk" placeholder="Tempel isi QR (FMS:...)"><button class="btn" onclick="A.byToken($('#tk').value)">Check-in</button></div>
+ <div class="row"><input id="q" placeholder="Cari manual nama / nomor undangan" value="${esc(S.q)}" oninput="A.q(this.value)"></div>${tbl(['No','Nama','Kategori','Kelas','Hadir',''],rs.map(i=>`<tr><td>${esc(i.no)}</td><td>${esc(i.nama)}</td><td>${esc(i.kat)}</td><td>${esc(i.kelas)}</td><td>${i.hadir}/${i.kuota}</td><td><button class="btn s" onclick="A.checkin('${i.id}')">Check-in</button></td></tr>`),'Ketik nama untuk mencari.')}</div>
+ <div class="card"><b>Check-in terbaru</b>${tbl(['Waktu','Nama','Kategori','Petugas'],[...list('ci')].reverse().slice(0,10).map(c=>{const i=get('inv',c.inv)||{};return `<tr><td>${esc(c.at)}</td><td>${esc(i.nama)}</td><td>${esc(i.kat)}</td><td>${esc(c.by)}</td></tr>`}),'Belum ada check-in.')}</div>`}
+function vCatering(){
+ const its=list('catitems'),q=S.q.toLowerCase(),rs=list('inv').filter(i=>q&&(i.nama+i.no).toLowerCase().includes(q)).slice(0,6);
+ return `<div class="card"><b>Stok konsumsi</b>${tbl(['Item','Kebutuhan','Dibagikan','Sisa'],its.map(it=>{const n=list('catdist').filter(d=>d.item===it.id).length;return `<tr><td>${esc(it.nama)}</td><td>${it.butuh}</td><td>${n}</td><td>${it.butuh-n}</td></tr>`}),'Belum ada item.')}</div>
+ <div class="card"><div class="row"><button class="btn g" onclick="A.scan(v=>{const i=list('inv').find(x=>x.token===tkn(v));i?A.f('q',i.nama):toast('QR tidak dikenal')})">Scan QR</button><input id="q" placeholder="Cari nama penerima" value="${esc(S.q)}" oninput="A.q(this.value)"></div>
+ ${rs.map(i=>`<div class="stu"><div class="nm"><b>${esc(i.nama)}</b><small>${esc(i.no)} · ${esc(i.kat)} · kuota ${i.kuota}</small></div>${its.map(it=>{const n=list('catdist').filter(d=>d.inv===i.id&&d.item===it.id).length;return `<button class="btn ${n>=it.per*i.kuota?'o':''} s" onclick="A.give('${i.id}','${it.id}')">${esc(it.nama)} ${n}/${it.per*i.kuota}</button>`}).join(' ')}</div>`).join('')}</div>
+ <div class="card"><b>Riwayat distribusi</b>${tbl(['Waktu','Penerima','Item','Petugas'],[...list('catdist')].reverse().slice(0,10).map(d=>`<tr><td>${esc(d.at)}</td><td>${esc(get('inv',d.inv)?.nama)}</td><td>${esc(get('catitems',d.item)?.nama)}</td><td>${esc(d.by)}</td></tr>`),'Belum ada distribusi.')}</div>
+ <h3>Atur jenis konsumsi</h3>${vCrud('catitems')}`}
+function vBudget(){
+ const tx=list('tx'),inc=tx.filter(t=>t.tipe==='Pemasukan').reduce((s,t)=>s+t.jumlah,0),out=tx.filter(t=>t.tipe==='Pengeluaran').reduce((s,t)=>s+t.jumlah,0),plan=list('budgets').reduce((s,b)=>s+b.jumlah,0);
+ return `<div class="grid">${[['Anggaran',rp(plan)],['Pemasukan',rp(inc)],['Pengeluaran',rp(out)],['Saldo',rp(inc-out)]].map(([l,v])=>`<div class="card stat"><b style="font-size:20px">${v}</b><span>${l}</span></div>`).join('')}</div>
+ <h3>Transaksi</h3>${vCrud('tx')}<h3>Rencana anggaran per kategori</h3>${vCrud('budgets')}`}
+function vAnn(){return vCrud('ann',null,null).replace(/onclick="A.edit\('ann','([^']+)'\)">Edit<\/button>/g,(m,id)=>`${m} <button class="btn g s" onclick="A.copy('${id}')">Salin WA</button>`)}
+function vReport(){
+ const sets=[['Data siswa',()=>T('students').map(({id,...r})=>r)],['Data guru',()=>T('teachers').map(({id,...r})=>r)],['Manifest bus',()=>list('manifest').map(m=>({Bus:get('buses',m.busId)?.nama,Kursi:m.seat,Nama:nama(m.sid),Kelas:stu(m.sid).kelas}))],
+ ['Pembagian kamar',()=>list('roomasg').map(a=>({Kamar:get('rooms',a.roomId)?.no,Penghuni:a.id[0]==='S'?nama(a.id.slice(2)):get('teachers',a.id.slice(2))?.nama}))],['Riwayat absensi',()=>list('hist').map(h=>({Bus:get('buses',h.busId)?.nama,Lokasi:get('cps',h.cpId)?.nama,Fase:h.phase,Nama:nama(h.sid),Status:h.status,Waktu:h.at,Petugas:h.by}))],
+ ['Undangan dan kehadiran',()=>list('inv').map(i=>({No:i.no,Nama:i.nama,Kategori:i.kat,Kuota:i.kuota,Hadir:i.hadir}))],['Distribusi konsumsi',()=>list('catdist').map(d=>({Penerima:get('inv',d.inv)?.nama,Item:get('catitems',d.item)?.nama,Waktu:d.at,Petugas:d.by}))],
+ ['Keuangan',()=>list('tx').map(({id,ev,...r})=>r)],['Kegiatan / rundown',()=>list('rundown').map(({id,ev,...r})=>r)],['Panitia',()=>list('committee').map(({id,ev,...r})=>r)],['Log audit',()=>list('audit').map(({id,ev,...r})=>r)]];
+ return `<div class="grid">${sets.map(([n,f],i)=>`<div class="card"><b>${n}</b><br><span style="color:var(--mu)">${f().length} baris</span><br><br><button class="btn g s" onclick="A.xls(${'('+f.toString()+')()'},'${n}')">Export Excel</button></div>`).join('')}</div><p style="color:var(--mu)">Laporan PDF: buka halaman terkait lalu tekan Cetak, pilih "Simpan sebagai PDF".</p>`}
+function vBooklet(){
+ const e=EV(),paper=e.paper||'A4',pgs=[];const ft=n=>`<div class="ft"><span>${esc(e.header||e.name)}</span><span>${n}</span></div>`;let n=0;
+ const pg=(t,b)=>pgs.push(`<div class="pg"><h3>${t}</h3>${b}${e.pagenum==='0'?'':ft(++n)}</div>`);
+ pg('',`<div style="text-align:center;padding-top:80px"><div class="big" style="color:var(--navy)">${esc(e.name)}</div><p>${esc(e.school)}<br>Tahun Ajaran ${esc(e.year)}<br>${esc(e.date)} · ${esc(e.location)}</p></div>`);
+ pg('Identitas sekolah',`<p><b>${esc(e.school)}</b></p><p>${esc(e.desc)}</p><p>Ketua panitia: ${esc(e.chair)}</p>`);
+ pg('Sambutan kepala sekolah',`<p style="white-space:pre-wrap">${esc(e.kepsek||'(isi di editor di atas)')}</p>`);pg('Sambutan ketua panitia',`<p style="white-space:pre-wrap">${esc(e.sambutan||'(isi di editor di atas)')}</p>`);
+ pg('Susunan panitia',tbl(['Divisi','Nama','Tugas'],list('committee').map(c=>`<tr><td>${esc(c.divisi)}</td><td>${esc(c.nama)}</td><td>${esc(c.tugas)}</td></tr>`)));
+ const ps=list('manifest').map(m=>stu(m.sid)).sort((a,b)=>a.nama.localeCompare(b.nama));
+ pg('Daftar peserta',tbl(['No','Nama','Kelas'],ps.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.nama)}</td><td>${esc(s.kelas)}</td></tr>`)));
+ pg('Guru pendamping',tbl(['Nama','Bus','HP'],list('team').map(t=>`<tr><td>${esc(get('teachers',t.tid)?.nama)}</td><td>${esc(get('buses',t.busId)?.nama)}</td><td>${esc(get('teachers',t.tid)?.hp)}</td></tr>`)));
+ pg('Pembagian bus',tbl(['Bus','Sopir','Penumpang','Pendamping'],list('buses').map(b=>`<tr><td>${esc(b.nama)}</td><td>${esc(b.sopir)} ${esc(b.hpSopir)}</td><td>${manifestOf(b.id).length}</td><td>${esc(coord(b.id))}</td></tr>`)));
+ list('buses').forEach(b=>pg('Manifest '+esc(b.nama),tbl(['Kursi','Nama','Kelas'],manifestOf(b.id).map(m=>`<tr><td>${m.seat}</td><td>${esc(nama(m.sid))}</td><td>${esc(stu(m.sid).kelas)}</td></tr>`))));
+ pg('Pembagian kamar hotel',tbl(['Kamar','Hotel','Penghuni'],list('rooms').map(r=>`<tr><td>${esc(r.no)}</td><td>${esc(get('hotels',r.hotelId)?.nama)}</td><td>${list('roomasg').filter(a=>a.roomId===r.id).map(a=>esc(a.id[0]==='S'?nama(a.id.slice(2)):get('teachers',a.id.slice(2))?.nama)).join(', ')}</td></tr>`)));
+ pg('Informasi hotel',tbl(['Hotel','Alamat','Kontak'],list('hotels').map(h=>`<tr><td>${esc(h.nama)}</td><td>${esc(h.alamat)}</td><td>${esc(h.hp)}</td></tr>`)));
+ const rd=j=>tbl(['Waktu','Kegiatan','Lokasi','PJ'],list('rundown').filter(r=>r.jenis===j).sort((a,b)=>(a.tgl||'').localeCompare(b.tgl||'')||(a.mulai||'').localeCompare(b.mulai||'')).map(r=>`<tr><td>${esc(r.tgl||'')} ${esc(r.mulai)}-${esc(r.selesai)}</td><td>${esc(r.kegiatan)}</td><td>${esc(r.lokasi)}</td><td>${esc(r.pj)}</td></tr>`));
+ pg('Rundown perjalanan',rd('trip'));pg('Rundown acara perpisahan',rd('party'));
+ pg('Kontak penting',tbl(['Pihak','Kontak'],[...list('buses').map(b=>`<tr><td>Sopir ${esc(b.nama)}</td><td>${esc(b.sopir)} ${esc(b.hpSopir)}</td></tr>`),...list('hotels').map(h=>`<tr><td>${esc(h.nama)}</td><td>${esc(h.hp)}</td></tr>`),...T('teachers').filter(t=>t.pend==='Ya').map(t=>`<tr><td>${esc(t.nama)}</td><td>${esc(t.hp)}</td></tr>`)]));
+ pg('Dokumentasi','<p style="color:var(--mu)">Halaman foto dokumentasi.</p>');
+ return `<style>@page{size:${paper};margin:14mm}</style><div class="card noprint"><div class="row"><div><label>Ukuran kertas</label><select onchange="A.setEv('paper',this.value);render()">${['A4','A5','legal'].map(p=>`<option ${p===paper?'selected':''}>${p}</option>`).join('')}</select></div>
+ <div><label>Header/footer</label><input value="${esc(e.header)}" onchange="A.setEv('header',this.value);render()" placeholder="Teks footer"></div><div><label>Nomor halaman</label><select onchange="A.setEv('pagenum',this.value);render()"><option value="1">Tampil</option><option value="0" ${e.pagenum==='0'?'selected':''}>Sembunyikan</option></select></div></div>
+ <label>Sambutan kepala sekolah</label><textarea rows="4" onchange="A.setEv('kepsek',this.value);render()">${esc(e.kepsek)}</textarea><label>Sambutan ketua panitia</label><textarea rows="4" onchange="A.setEv('sambutan',this.value);render()">${esc(e.sambutan)}</textarea>
+ <p style="color:var(--mu)">Buku dibuat ulang otomatis dari data terbaru. Data kesehatan tidak pernah dimasukkan.</p><button class="btn g" onclick="A.print()">Cetak / Simpan PDF</button></div><div class="bkwrap">${pgs.join('')}</div>`}
+
+/* ===== Data dummy ===== */
+A.demo=()=>{
+ if(T('students').length&&!confirm('Tambahkan data dummy ke data yang ada?'))return;
+ const nm=['Aditya','Bunga','Candra','Dewi','Eka','Fajar','Gita','Hadi','Indah','Joko','Kirana','Lukman'],bl=['Pratama','Sari','Wijaya','Putri','Nugroho','Lestari'];
+ ['XII TKJ 1','XII AKL 1','XII OTKP 1'].forEach((k,ki)=>nm.forEach((n,i)=>{const nis='2025'+ki+String(i).padStart(2,'0');T('students').push({id:nis,nis,nama:n+' '+bl[(i+ki)%6],jk:i%2?'P':'L',kelas:k,hp:'0812000'+nis.slice(-3),ortu:'Ortu '+n,hpOrtu:'0813000'+nis.slice(-3),darurat:'0814000'+nis.slice(-3)})}));
+ const tg=[['Bu Rina','Wali kelas'],['Pak Budi','Guru BK'],['Bu Sari','Guru'],['Pak Anto','Guru'],['Bu Maya','Guru'],['Pak Dedi','Guru']].map(([n,j],i)=>({id:'t'+i,nama:n,jabatan:j,nip:'19800'+i,hp:'08155500'+i,pend:'Ya'}));T('teachers').push(...tg);
+ const mk=(o)=>{o.id=uid();T('events').push(o);S.ev=o.id;DB._ev=o.id;return o.id},p=(n,o)=>T(n).push({id:uid(),ev:S.ev,...o});
+ const ts=T('students');
+ mk({name:'Farewell Trip Yogyakarta 2026',school:'SMK Walisongo Jakarta',year:'2025/2026',date:'2026-05-10',location:'Yogyakarta',chair:'Pak Budi',type:'trip',desc:'Perpisahan kelas XII ke Yogyakarta.',kepsek:'Selamat menikmati perjalanan ini...',sambutan:'Terima kasih kepada seluruh peserta...'});
+ const b1={id:'b1',ev:S.ev,nama:'Bus 1',perusahaan:'PO Maju Jaya',kap:20,plat:'B 7001 XY',sopir:'Pak Slamet',hpSopir:'081211110',status:'belum'},b2={...b1,id:'b2',nama:'Bus 2',kap:18,plat:'B 7002 XY',sopir:'Pak Harto',hpSopir:'081211111'};T('buses').push(b1,b2);
+ ts.forEach((s,i)=>T('manifest').push({id:s.id,ev:S.ev,sid:s.id,busId:i<18?'b1':'b2',seat:i<18?i+1:i-17}));
+ T('team').push({id:'b1_t0',ev:S.ev,busId:'b1',tid:'t0',duties:['pj','pendamping']},{id:'b1_t1',ev:S.ev,busId:'b1',tid:'t1',duties:['absensi']},{id:'b2_t2',ev:S.ev,busId:'b2',tid:'t2',duties:['pj','absensi']},{id:'b2_t3',ev:S.ev,busId:'b2',tid:'t3',duties:['konsumsi','pendamping']});
+ [['Sekolah (keberangkatan)','05:00','05:30'],['Rest Area KM 57','08:00','08:30'],['Destinasi Wisata 1','11:00','14:00'],['Hotel','17:00','']].forEach(([n,a,b],i)=>p('cps',{nama:n,order:i+1,tanggal:'2026-05-10',tiba:a,berangkat:b,pj:'Pak Budi',ket:''}));
+ p('hotels',{nama:'Hotel Malioboro',alamat:'Jl. Malioboro 1',hp:'0274-111222'});const h=T('hotels').at(-1).id;for(let i=1;i<=6;i++)p('rooms',{hotelId:h,no:'10'+i,tipe:'Quad',kap:4,harga:450000});
+ p('notes',{sid:ts[2].id,alergi:'Kacang',kondisi:'Asma',obat:'Inhaler',khusus:'',ortuCat:'Mohon diawasi'});
+ [['2026-05-10','05:00','06:00','Kumpul & keberangkatan','Sekolah','Pak Budi'],['2026-05-10','11:00','14:00','Kunjungan wisata 1','Candi','Bu Rina']].forEach(r=>p('rundown',{jenis:'trip',tgl:r[0],mulai:r[1],selesai:r[2],kegiatan:r[3],lokasi:r[4],pj:r[5],cat:''}));
+ p('rundown',{jenis:'party',mulai:'19:00',selesai:'19:30',kegiatan:'Malam perpisahan',pj:'Bu Rina',petugas:'MC',alat:'Sound system',cat:''});
+ [['Ketua','Pak Budi','Memimpin','Proses'],['Bendahara','Bu Sari','Mengelola dana','Proses'],['Konsumsi','Bu Maya','Snack & makan','Belum']].forEach(r=>p('committee',{divisi:r[0],nama:r[1],tugas:r[2],status:r[3]}));
+ p('vendors',{nama:'PO Maju Jaya',jenis:'Bus',kontak:'081200',ket:''});p('budgets',{kategori:'Transportasi',jumlah:30000000});p('tx',{tgl:'2026-04-01',tipe:'Pemasukan',kategori:'Iuran siswa',ket:'Pelunasan',jumlah:60000000,vendor:'',bayar:'Lunas',bukti:''});p('tx',{tgl:'2026-04-05',tipe:'Pengeluaran',kategori:'Transportasi',ket:'DP bus',jumlah:15000000,vendor:T('vendors').at(-1).id,bayar:'DP',bukti:''});
+ p('equip',{busId:'b1',nama:'Kotak P3K',perlu:2,ada:2,fase:'Sebelum berangkat',cek:'Sudah',kondisi:'Baik',cat:''});p('cons',{busId:'b1',jenis:'Snack',jumlah:18,dibagi:0,jadwal:'09:00',status:'Belum',cat:''});
+ mk({name:'Farewell Party 2026',school:'SMK Walisongo Jakarta',year:'2025/2026',date:'2026-06-20',location:'Gedung Serbaguna Kota',chair:'Bu Rina',type:'party',desc:'Malam perpisahan kelas XII.'});
+ ts.slice(0,12).forEach((s,i)=>{p('inv',{nama:s.nama,kat:'Siswa',kelas:s.kelas,kuota:1,rsvp:'Ya',hadir:0,token:tok(),no:'INV-'+String(i+1).padStart(3,'0')});p('inv',{nama:s.ortu,kat:'Orang tua/wali',kelas:'',kuota:2,rsvp:i%3?'Ya':'Belum',hadir:0,token:tok(),no:'INV-'+String(i+101)})});
+ tg.slice(0,3).forEach((t,i)=>p('inv',{nama:t.nama,kat:'Guru',kelas:'',kuota:1,rsvp:'Ya',hadir:0,token:tok(),no:'INV-G'+i}));
+ [['Snack',1,60],['Box makanan',1,60],['Minuman',1,60]].forEach(r=>p('catitems',{nama:r[0],per:r[1],butuh:r[2]}));
+ p('venues',{nama:'Gedung Serbaguna Kota',alamat:'Jl. Merdeka 10',kap:400,kontak:'0811999',harga:20000000,fas:'AC, Sound, Parkir',meja:40,layout:'Meja bundar 10 kursi'});
+ p('rundown',{jenis:'party',mulai:'18:00',selesai:'18:30',kegiatan:'Registrasi tamu',pj:'Bu Rina',petugas:'Tim registrasi',alat:'Laptop & scanner',cat:''});
+ save();S.view='dash';render();toast('Data dummy dimuat (2 acara)')};
+
+const SCH='SMK Walisongo Jakarta';
+const logo=(z=64)=>DB._logo?`<img src="${DB._logo}" alt="Logo" style="width:${z}px;height:${z}px;object-fit:contain;border-radius:12px;background:#fff;padding:4px;flex:0 0 auto">`:`<svg width="${z}" height="${z}" viewBox="0 0 64 64" style="flex:0 0 auto"><circle cx="32" cy="32" r="30" fill="#0f1f3d" stroke="#c9a24b" stroke-width="2.5"/><g fill="none" stroke="#c9a24b" stroke-width="2"><rect x="19" y="19" width="26" height="26"/><rect x="19" y="19" width="26" height="26" transform="rotate(45 32 32)"/></g><circle cx="32" cy="32" r="4" fill="#c9a24b"/></svg>`;
+A.logoUp=inp=>{const f=inp.files[0];if(!f)return;if(f.size>400000)return toast('Logo maksimal 400 KB');const r=new FileReader();r.onload=()=>{DB._logo=r.result;save();render()};r.readAsDataURL(f)};
+/* ===== Render utama ===== */
+function render(){
+ const root=$('#root');document.body.classList.toggle('bk',S.view==='booklet');
+ if(!S.ev||!EV()){const evs=T('events');root.innerHTML=`<div class="land"><div class="land-in">
+  <div class="hero">${logo(96)}<div><h1>SMK WALISONGO<br>JAKARTA</h1><p>Sistem manajemen perpisahan kelas XII. Kelola perjalanan, undangan, absensi, konsumsi, dan laporan acara dalam satu tempat.</p>
+  <button class="btn g" onclick="A.event()">+ Buat acara baru</button> <button class="btn o" onclick="A.demo()">Lihat contoh data</button></div></div>
+  <div class="panel">${evs.length?`<h3>Acara perpisahan</h3><div class="choose">${evs.map(e=>`<div class="pick" onclick="A.pick('${e.id}')"><b>${esc(e.name)}</b><p>${e.type==='trip'?'Farewell Trip':'Farewell Party'} · ${esc(e.year)}<br>${esc(e.date)} · ${esc(e.location)}</p></div>`).join('')}</div><br>`:''}
+   <h3>${evs.length?'Mulai acara lain':'Mulai dengan memilih jenis acara'}</h3><div class="choose">
+   <div class="pick" onclick="A.event('trip')"><b>Farewell Trip</b><p>Perjalanan luar kota: bus, hotel, pembagian kamar, absensi per lokasi, dan buku perjalanan.</p></div>
+   <div class="pick" onclick="A.event('party')"><b>Farewell Party</b><p>Acara dalam kota: undangan dan QR Code, check-in tamu, serta pembagian snack dan makanan.</p></div></div></div>
+  <div class="foot"><span>Data tersimpan di browser ini.</span><label class="btn">Ganti logo sekolah<input type="file" accept="image/*" hidden onchange="A.logoUp(this)"></label><button class="btn" onclick="A.backup()">Unduh cadangan</button><label class="btn">Pulihkan<input type="file" accept=".json" hidden onchange="A.restore(this)"></label><button class="btn" onclick="A.reset()">Hapus semua data</button></div></div></div>`;return}
+ const menu=MENU(),flat=menu.flatMap(g=>g[1]);if(!flat.some(m=>m[0]===S.view)&&S.view!=='bus')S.view=flat[0][0];
+ const titles=Object.fromEntries(flat),isOn=k=>S.view===k||(k==='buses'&&S.view==='bus'),lk=([k,l])=>`<a class="${isOn(k)?'on':''}" onclick="A.nav('${k}')">${l}</a>`,
+ navHtml=menu.map(([n,a])=>a.length<2?a.map(lk).join(''):`<details ${a.some(m=>isOn(m[0]))||S.og[n]?'open':''} ontoggle="S.og['${n}']=this.open"><summary>${n}</summary>${a.map(lk).join('')}</details>`).join(''),V={dash:vDash,students:vStudents,buses:vBuses,bus:vBus,rooms:vRooms,inv:vInv,checkin:vCheckin,catering:vCatering,budget:vBudget,ann:vAnn,report:vReport,booklet:vBooklet};
+ const body=V[S.view]?V[S.view]():M[S.view]?vCrud(S.view):'';
+ const active=document.activeElement?.id;
+ root.innerHTML=`<div class="mbar"><button onclick="A.menu()" aria-label="Buka menu">&#9776;</button><b>${esc(titles[S.view]||'Bus')}</b></div><div class="ov" onclick="A.menu()"></div><div class="app"><aside><div class="brand">${logo(40)}<h1>SMK Walisongo<br>Jakarta</h1></div><select onchange="A.role(this.value)">${Object.entries(ROLES).map(([k,v])=>`<option value="${k}" ${S.role===k?'selected':''}>Peran: ${v[1]}</option>`).join('')}</select>
+ ${S.role==='guru'?`<select onchange="A.tid(this.value)"><option value="">(Semua bus)</option>${T('teachers').map(t=>`<option value="${t.id}" ${S.tid===t.id?'selected':''}>${esc(t.nama)}</option>`).join('')}</select>`:''}${navHtml}<div class="sm">${esc(EV().name)}</div><a onclick="A.switch()">Ganti acara</a><a onclick="A.delEvent()">Hapus acara ini</a></aside>
+ <main>${S.view==='bus'?'':`<div class="top"><h2>${esc(titles[S.view]||'')}</h2></div>`}${body}</main></div>`;
+ if(active==='q'){const i=$('#q');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}
+}
+window.del=del;window.render=render;window.list=list;window.tkn=tkn;window.T=T;window.toast=toast;
+render();
+</script>
+</body>
+</html>
